@@ -3,12 +3,18 @@ import numpy as np;
 import pandas as pd;
 import matplotlib.pyplot as plt;
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.utils import shuffle
 from keras.utils import to_categorical, normalize
 from keras.models import Sequential
 from keras.layers import Dense, BatchNormalization, Dropout
 from keras.optimizers import Adam
+from sklearn.metrics import mean_squared_error
+from keras import backend as K
+
+# RMSE
+
+def root_mean_squared_error(y_true, y_pred):
+  return K.sqrt(K.mean(K.square(y_pred - y_true))) 
 
 # Leitura do dataset
 dataset = pd.read_csv('dataset/ClimaAustralia.csv')
@@ -56,45 +62,42 @@ model.add(Dense(units=128, activation='relu'))
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
 
-model.add(Dense(units=128, activation='relu'))
-model.add(BatchNormalization())
-model.add(Dropout(0.5))
+model.add(Dense(units=1, activation='tanh'))
 
-model.add(Dense(units=128, activation='relu'))
-model.add(BatchNormalization())
-model.add(Dropout(0.5))
-
-model.add(Dense(units=125, activation='relu'))
-model.add(BatchNormalization())
-model.add(Dropout(0.5))
-
-model.add(Dense(units=1, activation='sigmoid'))
-
-model.compile(optimizer=Adam(0.00001), loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=Adam(0.00001), loss=root_mean_squared_error, metrics=['mean_absolute_percentage_error', 'accuracy'])
 
 # Execução do treinamento da RNA
-history = model.fit(x = X_train, y = y_train, epochs=100, validation_data = (X_val, y_val), verbose=1)
+history = model.fit(x = X_train, y = y_train, epochs=15, validation_data = (X_val, y_val), verbose=1)
 
-# Plotagem do Acurácia do Modelo
-plt.title('Acurácia do Modelo')
+# R^2
+plt.title('Coeficiente de Determinação')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
+plt.plot(history.history['accuracy'], ls='--')
+plt.plot(history.history['val_accuracy'], ls='-')
 plt.legend(['Treino', 'Teste'], loc='upper left')
 plt.show()
 
-# Plotagem da Perda do Modelo
-plt.title('Perdas do Modelo')
+# MAPE
+plt.title('MAPE')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.plot(history.history['mean_absolute_percentage_error'], ls='--')
+plt.plot(history.history['val_mean_absolute_percentage_error'], ls='-')
+plt.legend(['Treino', 'Teste'], loc='upper left')
+plt.show()
+
+# RMSE
+plt.title('RMSE')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
+plt.plot(history.history['loss'], ls='--')
+plt.plot(history.history['val_loss'], ls='-')
 plt.legend(['Treino', 'Teste'], loc='upper left')
 plt.show()
 
-# Plotagem da acurácia atingida pelo modelo
-loss, accuracy = model.evaluate(X_test, y_test)
+# R^2 Total
+loss, mean_absolute_percentage_error, accuracy  = model.evaluate(X_test, y_test)
 acc = accuracy * 100
 plt.bar(1, acc)
 plt.text(0.92, 45, '{acc:.2f}%'.format(acc = acc), fontsize=20)
