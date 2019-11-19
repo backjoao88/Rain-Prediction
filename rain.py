@@ -20,7 +20,7 @@ def root_mean_squared_error(y_true, y_pred):
 dataset = pd.read_csv('dataset/ClimaAustralia.csv')
 
 # Retirando tuplas com valores "NaN"
-dataset.dropna(inpl;ace = True)
+dataset.dropna(inplace = True)
 
 # Plotagem do gráfico de temperaturas máximas no intervalo de ano 2012-2017
 dataset['Location'] = dataset['Location'].astype('category').cat.codes
