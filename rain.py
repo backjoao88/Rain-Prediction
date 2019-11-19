@@ -20,7 +20,7 @@ def root_mean_squared_error(y_true, y_pred):
 dataset = pd.read_csv('dataset/ClimaAustralia.csv')
 
 # Retirando tuplas com valores "NaN"
-dataset.dropna(inplace = True)
+dataset.dropna(inpl;ace = True)
 
 # Plotagem do gráfico de temperaturas máximas no intervalo de ano 2012-2017
 dataset['Location'] = dataset['Location'].astype('category').cat.codes
@@ -62,9 +62,9 @@ model.add(Dense(units=128, activation='relu'))
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
 
-model.add(Dense(units=1, activation='tanh'))
+model.add(Dense(units=1, activation='sigmoid'))
 
-model.compile(optimizer=Adam(0.00001), loss=root_mean_squared_error, metrics=['mean_absolute_percentage_error', 'accuracy'])
+model.compile(optimizer=Adam(0.00001), loss='binary_crossentropy', metrics=[root_mean_squared_error, 'mean_absolute_percentage_error', 'accuracy'])
 
 # Execução do treinamento da RNA
 history = model.fit(x = X_train, y = y_train, epochs=15, validation_data = (X_val, y_val), verbose=1)
@@ -97,7 +97,7 @@ plt.legend(['Treino', 'Teste'], loc='upper left')
 plt.show()
 
 # R^2 Total
-loss, mean_absolute_percentage_error, accuracy  = model.evaluate(X_test, y_test)
+loss, root_mean_squared_error, mean_absolute_percentage_error, accuracy  = model.evaluate(X_test, y_test)
 acc = accuracy * 100
 plt.bar(1, acc)
 plt.text(0.92, 45, '{acc:.2f}%'.format(acc = acc), fontsize=20)
@@ -105,3 +105,9 @@ plt.title('Accuracy')
 plt.xticks([])
 plt.ylabel('Percent')
 plt.show()
+
+predictions = model.predict(X)
+rounded = [round(x[0]) for x in predictions]
+print(rounded)
+accuracy = np.mean(rounded == y)
+print("Predictions Accuracy %.2f%%" % (accuracy * 100))
