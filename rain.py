@@ -14,7 +14,7 @@ from keras import backend as K
 # RMSE
 
 def root_mean_squared_error(y_true, y_pred):
-  return K.sqrt(K.mean(K.square(y_pred - y_true))) 
+  return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1)) 
 
 # Leitura do dataset
 dataset = pd.read_csv('dataset/ClimaAustralia.csv')
@@ -58,7 +58,7 @@ model.add(Dense(units=128, input_shape=(22,), activation='relu'))
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
 
-model.add(Dense(units=128, activation='relu'))
+model.add(Dense(units=12, activation='relu'))
 model.add(BatchNormalization())
 model.add(Dropout(0.5))
 
@@ -67,7 +67,7 @@ model.add(Dense(units=1, activation='sigmoid'))
 model.compile(optimizer=Adam(0.00001), loss='binary_crossentropy', metrics=[root_mean_squared_error, 'mean_absolute_percentage_error', 'accuracy'])
 
 # Execução do treinamento da RNA
-history = model.fit(x = X_train, y = y_train, epochs=15, validation_data = (X_val, y_val), verbose=1)
+history = model.fit(x = X_train, y = y_train, epochs=60, validation_data = (X_val, y_val), verbose=1)
 
 # R^2
 plt.title('Coeficiente de Determinação')
@@ -81,7 +81,7 @@ plt.show()
 # MAPE
 plt.title('MAPE')
 plt.xlabel('Epochs')
-plt.ylabel('Accuracy')
+plt.ylabel('MAPE')
 plt.plot(history.history['mean_absolute_percentage_error'], ls='--')
 plt.plot(history.history['val_mean_absolute_percentage_error'], ls='-')
 plt.legend(['Treino', 'Teste'], loc='upper left')
@@ -90,9 +90,9 @@ plt.show()
 # RMSE
 plt.title('RMSE')
 plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.plot(history.history['loss'], ls='--')
-plt.plot(history.history['val_loss'], ls='-')
+plt.ylabel('RMSE')
+plt.plot(history.history['root_mean_squared_error'], ls='--')
+plt.plot(history.history['val_root_mean_squared_error'], ls='-')
 plt.legend(['Treino', 'Teste'], loc='upper left')
 plt.show()
 
@@ -111,3 +111,4 @@ rounded = [round(x[0]) for x in predictions]
 print(rounded)
 accuracy = np.mean(rounded == y)
 print("Predictions Accuracy %.2f%%" % (accuracy * 100))
+
